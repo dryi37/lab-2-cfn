@@ -19,7 +19,7 @@ phases:
   build:
     commands:
       - echo "=== taskcat ==="
-      - taskcat test run --no-delete
+      - taskcat test run
 
 artifacts:
   files:
