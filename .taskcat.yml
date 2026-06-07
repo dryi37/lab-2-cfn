@@ -15,8 +15,9 @@ tests:
       AzPublic: "ap-southeast-1a"
       AzPrivate: "ap-southeast-1b"
       AllowedSshCidr: "0.0.0.0/0"
-      KeyName: "$[taskcat_genkeypair]"
+      KeyName: "keypair-nt548"
       InstanceType: "t3.micro"
       PublicInstanceName: "public-ec2"
       PrivateInstanceName: "private-ec2"
       TemplateBaseUrl: "$[taskcat_autobucket]"
+      
