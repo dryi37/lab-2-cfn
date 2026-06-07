@@ -19,5 +19,5 @@ tests:
       InstanceType: "t3.micro"
       PublicInstanceName: "public-ec2"
       PrivateInstanceName: "private-ec2"
-      TemplateBaseUrl: "$[taskcat_autobucket]"
+      TemplateBaseUrl: "https://lab-2-cfn-templates.s3.ap-southeast-1.amazonaws.com/cfn"
       
