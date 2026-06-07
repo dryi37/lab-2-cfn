@@ -3,10 +3,10 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      python: 3.12
+      python: 3.11
     commands:
-      - pip install --upgrade pip setuptools
-      - pip install "pyyaml>=6.0.2" cfn-lint taskcat --quiet
+      - pip install --upgrade pip
+      - pip install "setuptools<81" "pyyaml>=6.0.2" cfn-lint taskcat --quiet
 
   pre_build:
     commands:
