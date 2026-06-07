@@ -19,10 +19,9 @@ phases:
   build:
     commands:
       - echo "=== taskcat ==="
-      - taskcat test run
+      - taskcat test run --no-delete
 
 artifacts:
   files:
     - "**/*"
   discard-paths: no
-  
