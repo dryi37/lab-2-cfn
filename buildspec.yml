@@ -5,7 +5,7 @@ phases:
     runtime-versions:
       python: 3.12
     commands:
-      - pip install --upgrade pip
+      - pip install --upgrade pip setuptools
       - pip install "pyyaml>=6.0.2" cfn-lint taskcat --quiet
 
   pre_build:
