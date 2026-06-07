@@ -1,0 +1,84 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Compute stack - EC2 instances"
+
+Parameters:
+  ProjectName:
+    Type: String
+    Default: lab-2
+
+  InstanceType:
+    Type: String
+    Default: t3.micro
+
+  KeyName:
+    Type: AWS::EC2::KeyPair::KeyName
+    Default: keypair-nt548
+
+  PublicInstanceName:
+    Type: String
+    Default: public-ec2
+
+  PrivateInstanceName:
+    Type: String
+    Default: private-ec2
+
+  PublicSubnetId:
+    Type: String
+
+  PrivateSubnetId:
+    Type: String
+
+  PublicSgId:
+    Type: String
+    
+  PrivateSgId:
+    Type: String
+
+  # Lấy AMI Amazon Linux 2023 mới nhất tự động theo region
+  AmiId:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64
+
+Resources:
+  PublicEc2:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref InstanceType
+      ImageId: !Ref AmiId
+      KeyName: !Ref KeyName
+      SubnetId: !Ref PublicSubnetId 
+      SecurityGroupIds:
+        - !Ref PublicSgId
+      Tags:
+        - Key: Name
+          Value: !Sub "${ProjectName}-${PublicInstanceName}"
+
+  PrivateEc2:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref InstanceType
+      ImageId: !Ref AmiId
+      KeyName: !Ref KeyName
+      SubnetId: !Ref PrivateSubnetId
+      SecurityGroupIds:
+        - !Ref PrivateSgId
+      Tags:
+        - Key: Name
+          Value: !Sub "${ProjectName}-${PrivateInstanceName}"
+
+Outputs:
+  PublicEc2Id:
+    Value: !Ref PublicEc2
+    Export:
+      Name: !Sub "${ProjectName}-PublicEc2Id"
+
+  PublicEc2PublicIp:
+    Value: !GetAtt PublicEc2.PublicIp
+
+  PrivateEc2Id:
+    Value: !Ref PrivateEc2
+    Export:
+      Name: !Sub "${ProjectName}-PrivateEc2Id"
+
+  PrivateEc2PrivateIp:
+    Value: !GetAtt PrivateEc2.PrivateIp

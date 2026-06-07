@@ -1,0 +1,26 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.11
+    commands:
+      - pip install cfn-lint taskcat --quiet
+
+  pre_build:
+    commands:
+      - echo "=== cfn-lint ==="
+      - cfn-lint templates/main.yaml
+      - cfn-lint templates/network.yaml
+      - cfn-lint templates/security.yaml
+      - cfn-lint templates/compute.yaml
+
+  build:
+    commands:
+      - echo "=== taskcat ==="
+      - taskcat test run
+
+artifacts:
+  files:
+    - "**/*"
+  discard-paths: no

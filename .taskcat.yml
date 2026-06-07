@@ -1,0 +1,22 @@
+project:
+  name: lab-2
+  regions:
+    - ap-southeast-1
+  s3_regional_buckets: true
+
+tests:
+  main-test:
+    template: templates/main.yaml
+    parameters:
+      ProjectName: "lab-2-tc"
+      VpcCidr: "10.0.0.0/16"
+      PublicSubnetCidr: "10.0.1.0/24"
+      PrivateSubnetCidr: "10.0.2.0/24"
+      AzPublic: "ap-southeast-1a"
+      AzPrivate: "ap-southeast-1b"
+      AllowedSshCidr: "0.0.0.0/0"
+      KeyName: "$[taskcat_genkeypair]"
+      InstanceType: "t3.micro"
+      PublicInstanceName: "public-ec2"
+      PrivateInstanceName: "private-ec2"
+      TemplateBaseUrl: "$[taskcat_autobucket]"

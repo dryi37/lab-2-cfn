@@ -1,0 +1,35 @@
+version: 0.2
+
+env:
+  variables:
+    STACK_NAME: "lab-2"
+    REGION: "ap-southeast-1"
+    S3_BUCKET: "lab-2-cfn-templates"
+
+phases:
+  pre_build:
+    commands:
+      - aws s3 sync templates/ s3://$S3_BUCKET/cfn/ --delete
+      - export TEMPLATE_BASE_URL="https://s3.amazonaws.com/$S3_BUCKET/cfn"
+
+  build:
+    commands:
+      - |
+        aws cloudformation deploy \
+          --template-file templates/main.yaml \
+          --stack-name $STACK_NAME \
+          --region $REGION \
+          --capabilities CAPABILITY_NAMED_IAM \
+          --no-fail-on-empty-changeset \
+          --parameter-overrides \
+            ProjectName=lab-2 \
+            TemplateBaseUrl=$TEMPLATE_BASE_URL \
+            KeyName=keypair-nt548 \
+            AllowedSshCidr=0.0.0.0/0
+
+  post_build:
+    commands:
+      - aws cloudformation describe-stacks \
+          --stack-name $STACK_NAME \
+          --query "Stacks[0].Outputs" \
+          --output table

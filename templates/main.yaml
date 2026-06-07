@@ -1,0 +1,115 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Main (root) stack - orchestrates network, security, compute"
+
+Parameters:
+  ProjectName:
+    Type: String
+    Default: lab-2
+
+  AwsRegion:
+    Type: String
+    Default: ap-southeast-1
+
+  VpcCidr:
+    Type: String
+    Default: 10.0.0.0/16
+
+  PublicSubnetCidr:
+    Type: String
+    Default: 10.0.1.0/24
+
+  PrivateSubnetCidr:
+    Type: String
+    Default: 10.0.2.0/24
+
+  AzPublic:
+    Type: String
+    Default: ap-southeast-1a
+
+  AzPrivate:
+    Type: String
+    Default: ap-southeast-1b
+
+  AllowedSshCidr:
+    Type: String
+    Default: 0.0.0.0/0
+
+  KeyName:
+    Type: AWS::EC2::KeyPair::KeyName
+    Default: keypair-nt548
+
+  InstanceType:
+    Type: String
+    Default: t3.micro
+
+  PublicInstanceName:
+    Type: String
+    Default: public-ec2
+
+  PrivateInstanceName:
+    Type: String
+    Default: private-ec2
+
+  # S3 base URL chứa nested stack templates (không có trailing slash)
+  TemplateBaseUrl:
+    Type: String
+
+Resources:
+  NetworkStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBaseUrl}/network.yaml"
+      Parameters:
+        ProjectName: !Ref ProjectName
+        VpcCidr: !Ref VpcCidr
+        PublicSubnetCidr: !Ref PublicSubnetCidr
+        PrivateSubnetCidr: !Ref PrivateSubnetCidr
+        AzPublic: !Ref AzPublic
+        AzPrivate: !Ref AzPrivate
+
+  SecurityStack:
+    Type: AWS::CloudFormation::Stack
+    DependsOn: NetworkStack
+    Properties:
+      TemplateURL: !Sub "${TemplateBaseUrl}/security.yaml"
+      Parameters:
+        ProjectName: !Ref ProjectName
+        AllowedSshCidr: !Ref AllowedSshCidr
+
+  ComputeStack:
+    Type: AWS::CloudFormation::Stack
+    DependsOn: SecurityStack
+    Properties:
+      TemplateURL: !Sub "${TemplateBaseUrl}/compute.yaml"
+      Parameters:
+        ProjectName: !Ref ProjectName
+        InstanceType: !Ref InstanceType
+        KeyName: !Ref KeyName
+        PublicInstanceName: !Ref PublicInstanceName
+        PrivateInstanceName: !Ref PrivateInstanceName
+        PublicSubnetId: !GetAtt NetworkStack.Outputs.PublicSubnetId
+        PrivateSubnetId: !GetAtt NetworkStack.Outputs.PrivateSubnetId
+        PublicSgId: !GetAtt SecurityStack.Outputs.PublicSgId
+        PrivateSgId: !GetAtt SecurityStack.Outputs.PrivateSgId
+
+Outputs:
+  VpcId:
+    Value: !GetAtt NetworkStack.Outputs.VpcId
+
+  PublicSubnetId:
+    Value: !GetAtt NetworkStack.Outputs.PublicSubnetId
+
+  PrivateSubnetId:
+    Value: !GetAtt NetworkStack.Outputs.PrivateSubnetId
+
+  PublicSgId:
+    Value: !GetAtt SecurityStack.Outputs.PublicSgId
+
+  PrivateSgId:
+    Value: !GetAtt SecurityStack.Outputs.PrivateSgId
+
+  PublicEc2PublicIp:
+    Value: !GetAtt ComputeStack.Outputs.PublicEc2PublicIp
+
+  PrivateEc2PrivateIp:
+    Value: !GetAtt ComputeStack.Outputs.PrivateEc2PrivateIp
